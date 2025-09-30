@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Game</h1>
+            <div class="game-info">
+                <div class="players">
+                    <div class="player" id="player1">Player 1: <span class="score">0</span></div>
+                    <div class="player" id="player2">Player 2: <span class="score">0</span></div>
+                </div>
+                <div class="turn-indicator">Waiting for players...</div>
+            </div>
+        </header>
+        
+        <main>
+            <div class="game-board" id="gameBoard">
+                <!-- Cards will be generated dynamically -->
+            </div>
+            
+            <div class="controls">
+                <button id="startGame" disabled>Start Game</button>
+                <button id="resetGame" disabled>Play Again</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
