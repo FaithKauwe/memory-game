@@ -5,10 +5,25 @@ const io = require('socket.io')(server);
 
 const PORT = process.env.PORT || 3000;
 
+// Game state management (similar to onlineUsers and channels in make-chat)
+let gameState = {
+    players: {},
+    currentPlayer: null,
+    cards: [],
+    flippedCards: [],
+    matches: {player1: 0, player2: 0},
+    gameStarted: false
+};
+
 app.use(express.static('static'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/static/index.html');
+});
+
+// Socket.io connection handling (following make-chat pattern)
+io.on("connection", (socket) => {
+    require('./sockets/game.js')(io, socket, gameState);
 });
 
 server.listen(PORT, () => {
