@@ -117,20 +117,12 @@ function renderGameBoard() {
 }
 
 function handleCardClick(event) {
-    if (!gameState.gameStarted || gameState.currentPlayer !== gameState.playerId) {
-        return;
-    }
-    
     const cardId = parseInt(event.target.dataset.cardId);
-    const card = gameState.cards[cardId];
     
-    if (card.flipped || card.matched) {
-        return;
-    }
-    
+    // For now, allow any player to flip any card (we'll add turn validation later)
     socket.emit('flip_card', {
         cardId: cardId,
-        playerId: gameState.playerId
+        playerId: gameState.playerId || 'unknown'
     });
 }
 
@@ -178,6 +170,7 @@ function updateScores(scores) {
 }
 
 document.getElementById('startGame')?.addEventListener('click', () => {
+    console.log('Start game button clicked');
     socket.emit('start_game');
 });
 

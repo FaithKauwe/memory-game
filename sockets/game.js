@@ -24,7 +24,7 @@ module.exports = (io, socket, gameState) => {
         return cards;
     }
     
-    // socket listeneres and handlers code 
+    // socket listeneres and handlers code- the server side logic 
     
     // listener for the 'player_joined' event, handles player joining 
     socket.on('player_joined', (playerData) => {
@@ -52,6 +52,40 @@ module.exports = (io, socket, gameState) => {
         });
         
         console.log(`Player ${playerNumber} joined. Total players: ${Object.keys(gameState.players).length}`);
+    });
+    
+    // listener for the 'flip_card' event coming from the client browsers, handles card flip
+    socket.on('flip_card', (cardData) => {
+        console.log('Card flip attempt:', cardData);
+        
+        // For now, just broadcast the card flip to all players
+        // logs the card to the server terminal and the client browser consoles
+        // Later we'll add turn validation and match detection
+        io.emit('card_flipped', {
+            cardId: cardData.cardId,
+            cardValue: gameState.cards[cardData.cardId]?.value,
+            playerId: socket.id,
+            playerName: gameState.players[socket.id]?.name
+        });
+    });
+    
+    // listener for the 'start_game' event coming from the client browsers, handles game start
+    socket.on('start_game', () => {
+        console.log('Game start requested');
+        
+        // update the gameState storage object, data will persist in gameState until server is killed
+        gameState.cards = generateCardDeck();
+        gameState.gameStarted = true;
+        gameState.currentPlayer = 1; // Start with player 1
+        
+        // send game start info back to client browsers
+        io.emit('game_start', {
+            cards: gameState.cards,
+            currentPlayer: gameState.currentPlayer,
+            playerId: socket.id
+        });
+        
+        console.log('Game started with', gameState.cards.length, 'cards');
     });
     
     socket.on('disconnect', () => {
