@@ -13,6 +13,11 @@ let gameState = {
 socket.on('connect', () => {
     console.log('Connected to server');
     updateGameStatus('Connected to server');
+    
+    // browser client joins as a player, emits message to server
+    socket.emit('player_joined', {
+        name: `Player ${Math.floor(Math.random() * 1000)}` // assign player a random number name 
+    });
 });
 
 socket.on('disconnect', () => {
@@ -23,6 +28,11 @@ socket.on('disconnect', () => {
 socket.on('player_joined', (data) => {
     console.log('Player joined:', data);
     updateGameStatus(`Player ${data.playerNumber} joined`);
+});
+
+socket.on('player_left', (data) => {
+    console.log('Player left:', data);
+    updateGameStatus(`Player ${data.playerNumber} left`);
 });
 
 socket.on('game_start', (data) => {
