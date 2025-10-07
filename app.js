@@ -13,7 +13,8 @@ let gameState = {
     flippedCards: [],
     playersCurrentFlippedCards: [], 
     matches: {player1: 0, player2: 0},
-    gameStarted: false
+    gameStarted: false,
+    turnLocked: false
 };
 
 app.use(express.static('static'));

@@ -103,10 +103,16 @@ socket.on('turn_change', (data) => {
     console.log('Turn changed:', data);
     gameState.currentPlayer = data.currentPlayer;
     updateTurnIndicator();
+    updateGameStatus(`It's Player ${data.currentPlayer}'s turn!`);
 });
 
 socket.on('invalid_turn', (data) => {
     console.log('Invalid turn attempt:', data);
+    updateGameStatus(data.message);
+});
+
+socket.on('turn_locked', (data) => {
+    console.log('Turn is locked:', data);
     updateGameStatus(data.message);
 });
 
@@ -227,6 +233,11 @@ function updateScores(scores) {
 document.getElementById('startGame')?.addEventListener('click', () => {
     console.log('Start game button clicked');
     socket.emit('start_game');
+});
+
+document.getElementById('endTurn')?.addEventListener('click', () => {
+    console.log('End turn button clicked');
+    socket.emit('end_turn');
 });
 
 document.getElementById('resetGame')?.addEventListener('click', () => {

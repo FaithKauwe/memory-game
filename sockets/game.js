@@ -97,6 +97,16 @@ module.exports = (io, socket, gameState) => {
             return;
         }
         
+        // Check if turn is locked (after no match, waiting for end turn button click)
+        // Still allow flipping cards face-down even when locked
+        if (gameState.turnLocked && !card.flipped) {
+            console.log(`Turn is locked - Player ${player.playerNumber} must flip cards face-down or click End Turn`);
+            socket.emit('turn_locked', {
+                message: 'Flip your cards face-down and click "End Turn"'
+            });
+            return;
+        }
+        
         // listen for a click here, where card is face-up but not matched,
         //  and emit the flipped back event to all players
         if (card.flipped) {
@@ -165,10 +175,13 @@ module.exports = (io, socket, gameState) => {
             } else {
                 console.log('NO MATCH:', firstCard.value, 'vs', secondCard.value);
                 
+                // Lock the turn - player must flip cards back and click End Turn
+                gameState.turnLocked = true;
+                
                 // Broadcast no match (cards stay flipped for manual flip-back)
                 io.emit('no_match', {
                     flippedCards: [firstCardIndex, secondCardIndex],
-                    message: 'No match! Flip the cards back manually and pass your turn to the next player.'
+                    message: 'No match! Flip the cards back and click "End Turn".'
                 });
             }
             
@@ -197,11 +210,38 @@ module.exports = (io, socket, gameState) => {
         console.log('Game started with', gameState.cards.length, 'cards');
     });
     
+    // listener for the 'end_turn' event - switches turns and unlocks board
+    socket.on('end_turn', () => {
+        console.log('End turn requested');
+        
+        const player = gameState.players[socket.id];
+        
+        // Validate it's the current player ending their turn
+        if (!player || player.playerNumber !== gameState.currentPlayer) {
+            console.log('Player tried to end turn when it was not their turn');
+            return;
+        }
+        
+        // Switch to the other player
+        const previousPlayer = gameState.currentPlayer;
+        gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+        
+        // Unlock the turn for the next player
+        gameState.turnLocked = false;
+        
+        // Broadcast turn change to all players
+        io.emit('turn_change', {
+            currentPlayer: gameState.currentPlayer,
+            previousPlayer: previousPlayer
+        });
+        
+        console.log(`Turn switched from Player ${previousPlayer} to Player ${gameState.currentPlayer}`);
+    });
+    
     // listener for the 'reset_game' event coming from the client browsers, handles game reset
     socket.on('reset_game', () => {
         console.log('Game reset requested');
         
-        // Reset game state
         gameState.cards = [];
         gameState.gameStarted = false;
         gameState.currentPlayer = 1;
