@@ -5,12 +5,13 @@ const io = require('socket.io')(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Game state management (similar to onlineUsers and channels in make-chat)
+// game state management object, data will persist in gameState until server is killed
 let gameState = {
     players: {},
     currentPlayer: null,
     cards: [],
     flippedCards: [],
+    playersCurrentFlippedCards: [], 
     matches: {player1: 0, player2: 0},
     gameStarted: false
 };

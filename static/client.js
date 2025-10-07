@@ -1,5 +1,8 @@
 const socket = io.connect();
 
+// this gameState is a separate object from the gameState in app.js
+// the data object from the emit calls carries the info that each client/ server's gameState
+// needs to update itsel
 let gameState = {
     cards: [],
     currentPlayer: null,
@@ -15,6 +18,9 @@ socket.on('connect', () => {
     updateGameStatus('Connected to server');
     
     // browser client joins as a player, emits message to server
+    // every emit function can include a data object with specified shape 
+    // (like here, name is the key in the key value pair I am specifying I want the data object to have)
+    // but it's not required
     socket.emit('player_joined', {
         name: `Player ${Math.floor(Math.random() * 1000)}` // assign player a random number name 
     });
@@ -33,6 +39,41 @@ socket.on('player_joined', (data) => {
 socket.on('player_left', (data) => {
     console.log('Player left:', data);
     updateGameStatus(`Player ${data.playerNumber} left`);
+});
+
+socket.on('match_found', (data) => {
+    console.log('Match found!', data);
+    
+    // use data object info to mark cards as matched in gamestate object
+    data.matchedCards.forEach(cardId => {
+        const card = gameState.cards[cardId];
+        if (card) {
+            card.matched = true;
+        }
+    });
+    
+    // Update UI to show matched cards
+    data.matchedCards.forEach(cardId => {
+        const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+        if (cardElement) {
+            cardElement.classList.add('matched');
+        }
+    });
+    
+
+    updateScores(data.scores);
+    
+    
+    updateGameStatus(`🎉 ${data.playerName} found a match! ${data.cardValue} ${data.cardValue}`);
+});
+
+socket.on('no_match', (data) => {
+    console.log('No match:', data);
+    
+    // Show no match message
+    updateGameStatus(data.message);
+    
+    // Cards stay flipped - player can manually flip them back
 });
 
 socket.on('game_start', (data) => {
@@ -138,17 +179,9 @@ function handleCardFlip(data) {
 }
 
 function handleMatchFound(data) {
-    data.matchedCards.forEach(cardId => {
-        const card = gameState.cards[cardId];
-        card.matched = true;
-        
-        const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
-        if (cardElement) {
-            cardElement.classList.add('matched');
-        }
-    });
-    
-    updateScores(data.scores);
+    // This function is now handled by the match_found socket event
+    // Keeping it for compatibility but the socket.on('match_found') does the work
+    console.log('Match found via handleMatchFound:', data);
 }
 
 function handleGameOver(data) {
