@@ -76,6 +76,7 @@ socket.on('no_match', (data) => {
     // Cards stay flipped - player can manually flip them back
 });
 
+// client- side event listeners and handlers
 socket.on('game_start', (data) => {
     console.log('Game started:', data);
     gameState.gameStarted = true;
@@ -91,6 +92,11 @@ socket.on('game_start', (data) => {
 socket.on('card_flipped', (data) => {
     console.log('Card flipped:', data);
     handleCardFlip(data);
+});
+
+socket.on('card_flipped_face-down', (data) => {
+    console.log('Card flipped face-down:', data);
+    handleCardFlipFaceDown(data);
 });
 
 socket.on('turn_change', (data) => {
@@ -175,6 +181,17 @@ function handleCardFlip(data) {
     if (cardElement) {
         cardElement.textContent = card.value;
         cardElement.classList.add('flipped');
+    }
+}
+
+function handleCardFlipFaceDown(data) {
+    const card = gameState.cards[data.cardId];
+    card.flipped = false;
+// change the css to show the card flips    
+    const cardElement = document.querySelector(`[data-card-id="${data.cardId}"]`);
+    if (cardElement) {
+        cardElement.textContent = '?';
+        cardElement.classList.remove('flipped');
     }
 }
 

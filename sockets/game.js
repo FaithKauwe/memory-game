@@ -76,19 +76,35 @@ module.exports = (io, socket, gameState) => {
             return;
         }
         
-        // Prevent flipping already flipped or matched cards
-        if (card.flipped || card.matched) {
-            console.log('Card already flipped or matched, ignoring');
+        // if card is .matched, do nothing
+        if (card.matched) {
+            console.log('Card is matched, ignoring clicks');
             return;
         }
         
-        // Mark card as flipped in game state
+        // listen for a click here, where card is face-up but not matched,
+        //  and emit the flipped back event to all players
+        if (card.flipped) {
+            console.log(`Card ${cardId} (${card.value}) flipped face-down`);
+            card.flipped = false;
+            
+            
+            io.emit('card_flipped_face-down', {
+                cardId: cardId,
+                playerId: socket.id,
+                playerName: gameState.players[socket.id]?.name
+            });
+            return;
+        }
+        
+        // handle flip event when card is face-down, changing to face-up
+        console.log(`Card ${cardId} flipping face-up`);
         card.flipped = true;
         
-        // Add card to current turn's flipped cards
+        
         gameState.playersCurrentFlippedCards.push(cardId);
         
-        // Broadcast card flip to all players
+        
         io.emit('card_flipped', {
             cardId: cardId,
             cardValue: card.value,
