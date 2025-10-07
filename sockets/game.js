@@ -82,6 +82,21 @@ module.exports = (io, socket, gameState) => {
             return;
         }
         
+        // Turn validation - only current player can flip cards
+        // get current player from gameState.players object
+        const player = gameState.players[socket.id];
+        if (!player || player.playerNumber !== gameState.currentPlayer) {
+            console.log(`Player ${player?.playerNumber} tried to flip card, but it's Player ${gameState.currentPlayer}'s turn`);
+            
+            // Send message to the player who tried to flip out of turn
+            // target specific player using socket.emit instead of io.emit
+            socket.emit('invalid_turn', {
+                message: `It's Player ${gameState.currentPlayer}'s turn!`,
+                currentPlayer: gameState.currentPlayer
+            });
+            return;
+        }
+        
         // listen for a click here, where card is face-up but not matched,
         //  and emit the flipped back event to all players
         if (card.flipped) {
@@ -180,6 +195,30 @@ module.exports = (io, socket, gameState) => {
         });
         
         console.log('Game started with', gameState.cards.length, 'cards');
+    });
+    
+    // listener for the 'reset_game' event coming from the client browsers, handles game reset
+    socket.on('reset_game', () => {
+        console.log('Game reset requested');
+        
+        // Reset game state
+        gameState.cards = [];
+        gameState.gameStarted = false;
+        gameState.currentPlayer = 1;
+        gameState.playersCurrentFlippedCards = [];
+        gameState.matches = { player1: 0, player2: 0 };
+        
+        // Reset player scores
+        Object.values(gameState.players).forEach(player => {
+            player.score = 0;
+        });
+        
+        // Notify all clients that game has been reset
+        io.emit('game_reset', {
+            message: 'Game has been reset. Click "Start Game" to begin a new game.'
+        });
+        
+        console.log('Game reset complete');
     });
     
     socket.on('disconnect', () => {

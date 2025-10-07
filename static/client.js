@@ -105,6 +105,11 @@ socket.on('turn_change', (data) => {
     updateTurnIndicator();
 });
 
+socket.on('invalid_turn', (data) => {
+    console.log('Invalid turn attempt:', data);
+    updateGameStatus(data.message);
+});
+
 socket.on('match_found', (data) => {
     console.log('Match found:', data);
     handleMatchFound(data);
