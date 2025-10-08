@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Memory Game Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slide-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1100px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide 1 - Title Slide */
+        #slide1 {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #slide1 h1 {
+            font-size: 4em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #slide1 .subtitle {
+            font-size: 1.8em;
+            margin-bottom: 50px;
+            opacity: 0.9;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .tech-badge {
+            background: rgba(76, 175, 80, 0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            backdrop-filter: blur(10px);
+            border: 2px solid #4CAF50;
+        }
+
+        /* Slide 2 - Overview */
+        #slide2 h2 {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 40px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .feature-card .emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .feature-card p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        /* Slide 3 - Socket.io Events */
+        #slide3 h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .events-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .event-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .event-section h3 {
+            color: #4CAF50;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .event-item:hover {
+            transform: translateX(5px);
+        }
+
+        .event-item .emoji {
+            font-size: 1.3em;
+            margin-right: 10px;
+            min-width: 30px;
+        }
+
+        .event-item .event-name {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .event-item .event-desc {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+
+        /* Slide 4 - Demo Features */
+        #slide4 h2 {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .demo-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .demo-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: scale(1.05);
+        }
+
+        .demo-card .emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .demo-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .demo-card p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .demo-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Slide 5 - Technical Highlights */
+        #slide5 h2 {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 40px;
+        }
+
+        .tech-highlights {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .tech-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateX(10px);
+        }
+
+        .tech-item .emoji {
+            font-size: 3em;
+            margin-right: 25px;
+        }
+
+        .tech-item .content h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .tech-item .content p {
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        /* Slide 6 - Q&A */
+        #slide6 {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #slide6 h1 {
+            font-size: 5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #slide6 .emoji-row {
+            font-size: 4em;
+            margin-top: 40px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            background: #4CAF50;
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active" id="slide1">
+            <h1>🦄 Multiplayer Memory Game 🦄</h1>
+            <div class="subtitle">Faith Kauwe</div>
+            <div class="tech-stack">
+                <div class="tech-badge">Node.js</div>
+                <div class="tech-badge">Express</div>
+                <div class="tech-badge">Socket.io</div>
+                <div class="tech-badge">Vanilla JS</div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide" id="slide2">
+            <h2>Project Overview</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="emoji">🐶</div>
+                    <h3>Real-Time Multiplayer</h3>
+                    <p>Memory matching game with synchronized gameplay across all connected players</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji">🐱</div>
+                    <h3>Turn-Based Gameplay</h3>
+                    <p>Players take turns flipping cards with validated turn management</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji">🐭</div>
+                    <h3>3 Difficulty Modes</h3>
+                    <p>Easy, Hard, and Demo modes for different gameplay experiences</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji">🐹</div>
+                    <h3>Key Features</h3>
+                    <p>Score tracking, turn validation, and automatic game end detection</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Key Features Demo -->
+        <div class="slide" id="slide3">
+            <h2>Key Features Demo</h2>
+            <div class="demo-features">
+                <div class="event-section">
+                    <h3>Client → Server Events</h3>
+                    <div class="event-item">
+                        <span class="emoji">🐰</span>
+                        <div>
+                            <div class="event-name">player_joined</div>
+                            <div class="event-desc">Player connects to game</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🦊</span>
+                        <div>
+                            <div class="event-name">start_game</div>
+                            <div class="event-desc">Game initialization with difficulty</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐻</span>
+                        <div>
+                            <div class="event-name">flip_card</div>
+                            <div class="event-desc">Player attempts to flip a card</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐼</span>
+                        <div>
+                            <div class="event-name">end_turn</div>
+                            <div class="event-desc">Player passes turn to opponent</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐨</span>
+                        <div>
+                            <div class="event-name">reset_game</div>
+                            <div class="event-desc">Reset game state</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-section">
+                    <h3>Server → Client Events</h3>
+                    <div class="event-item">
+                        <span class="emoji">🐯</span>
+                        <div>
+                            <div class="event-name">player_joined</div>
+                            <div class="event-desc">Broadcast new player</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🦁</span>
+                        <div>
+                            <div class="event-name">player_left</div>
+                            <div class="event-desc">Broadcast player disconnect</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐮</span>
+                        <div>
+                            <div class="event-name">game_start</div>
+                            <div class="event-desc">Send game board to all players</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐷</span>
+                        <div>
+                            <div class="event-name">card_flipped</div>
+                            <div class="event-desc">Broadcast card flip to all</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐸</span>
+                        <div>
+                            <div class="event-name">card_flipped_face-down</div>
+                            <div class="event-desc">Broadcast card flip back</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐵</span>
+                        <div>
+                            <div class="event-name">match_found</div>
+                            <div class="event-desc">Celebrate matching pair</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐔</span>
+                        <div>
+                            <div class="event-name">no_match</div>
+                            <div class="event-desc">Notify no match found</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐧</span>
+                        <div>
+                            <div class="event-name">turn_change</div>
+                            <div class="event-desc">Switch active player</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🐦</span>
+                        <div>
+                            <div class="event-name">invalid_turn</div>
+                            <div class="event-desc">Reject out-of-turn action</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🦉</span>
+                        <div>
+                            <div class="event-name">turn_locked</div>
+                            <div class="event-desc">Prevent extra flips</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🦆</span>
+                        <div>
+                            <div class="event-name">game_over</div>
+                            <div class="event-desc">End game with winner</div>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <span class="emoji">🦅</span>
+                        <div>
+                            <div class="event-name">game_reset</div>
+                            <div class="event-desc">Clear board</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Socket.io Events -->
+        <div class="slide" id="slide4">
+            <h2>⭐ Socket.io Events Architecture</h2>
+            <div class="events-container">
+                <div class="demo-card">
+                    <div class="emoji">🎯</div>
+                    <h3>Turn Validation</h3>
+                    <p>Server-side validation ensures players can only act during their turn</p>
+                </div>
+                <div class="demo-card">
+                    <div class="emoji">✨</div>
+                    <h3>Match Detection</h3>
+                    <p>Automatic matching logic with instant feedback</p>
+                </div>
+                <div class="demo-card">
+                    <div class="emoji">👻</div>
+                    <h3>Auto Fade-Out</h3>
+                    <p>Matched pairs elegantly fade away from the board</p>
+                </div>
+                <div class="demo-card">
+                    <div class="emoji">🎉</div>
+                    <h3>Confetti Celebration</h3>
+                    <p>Visual celebration when matches are found</p>
+                </div>
+            </div>
+            <div class="demo-banner">
+                🎮 LIVE DEMO - Demo Mode 🎮
+            </div>
+        </div>
+
+        <!-- Slide 5: Technical Highlights -->
+        <div class="slide" id="slide5">
+            <h2>Technical Highlights</h2>
+            <div class="tech-highlights">
+                <div class="tech-item">
+                    <div class="emoji">🔀</div>
+                    <div class="content">
+                        <h3>Fisher-Yates Shuffle Algorithm</h3>
+                        <p>Ensures truly random card distribution for fair gameplay</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="emoji">🚩</div>
+                    <div class="content">
+                        <h3>Feature Flag Pattern</h3>
+                        <p>Demo Mode implementation for testing and demonstrations</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="emoji">🗄️</div>
+                    <div class="content">
+                        <h3>Server-Side Game State</h3>
+                        <p>Centralized state management prevents cheating and ensures consistency</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="emoji">⚡</div>
+                    <div class="content">
+                        <h3>Real-Time Synchronization</h3>
+                        <p>Socket.io ensures all clients stay perfectly synchronized</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Q&A -->
+        <div class="slide" id="slide6">
+            <h1>Questions?</h1>
+            <div class="emoji-row">
+                🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">6</span>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prev-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 6;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = totalSlides;
+            if (n < 1) currentSlide = 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide;
+            document.getElementById('prev-btn').disabled = currentSlide === 1;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides;
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
