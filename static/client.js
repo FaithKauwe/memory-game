@@ -84,9 +84,19 @@ socket.on('game_start', (data) => {
     gameState.currentPlayer = data.currentPlayer;
     gameState.playerId = data.playerId;
     
+    // Add hard-mode class to game board if hard difficulty
+    const gameBoard = document.getElementById('gameBoard');
+    if (gameBoard) {
+        if (data.difficulty === 'hard') {
+            gameBoard.classList.add('hard-mode');
+        } else {
+            gameBoard.classList.remove('hard-mode');
+        }
+    }
+    
     renderGameBoard();
     updateTurnIndicator();
-    updateGameStatus('Game started!');
+    updateGameStatus(`Game started in ${data.difficulty} mode!`);
 });
 
 socket.on('card_flipped', (data) => {
@@ -114,11 +124,6 @@ socket.on('invalid_turn', (data) => {
 socket.on('turn_locked', (data) => {
     console.log('Turn is locked:', data);
     updateGameStatus(data.message);
-});
-
-socket.on('match_found', (data) => {
-    console.log('Match found:', data);
-    handleMatchFound(data);
 });
 
 socket.on('game_over', (data) => {
@@ -206,19 +211,36 @@ function handleCardFlipFaceDown(data) {
     }
 }
 
-function handleMatchFound(data) {
-    // This function is now handled by the match_found socket event
-    // Keeping it for compatibility but the socket.on('match_found') does the work
-    console.log('Match found via handleMatchFound:', data);
-}
-
 function handleGameOver(data) {
     gameState.gameStarted = false;
-    updateGameStatus(`Game Over! ${data.winner} wins!`);
+    updateGameStatus(data.message);
+    
+    
+    createConfetti();
     
     const resetButton = document.getElementById('resetGame');
     if (resetButton) {
         resetButton.disabled = false;
+    }
+}
+
+function createConfetti() {
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
+    const confettiCount = 50;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        document.body.appendChild(confetti);
+        
+        // Remove confetti after animation
+        setTimeout(() => {
+            confetti.remove();
+        }, 4000);
     }
 }
 
@@ -230,9 +252,14 @@ function updateScores(scores) {
     if (player2Score) player2Score.textContent = scores.player2;
 }
 
-document.getElementById('startGame')?.addEventListener('click', () => {
-    console.log('Start game button clicked');
-    socket.emit('start_game');
+document.getElementById('startEasy')?.addEventListener('click', () => {
+    console.log('Start easy game');
+    socket.emit('start_game', { difficulty: 'easy' });
+});
+
+document.getElementById('startHard')?.addEventListener('click', () => {
+    console.log('Start hard game');
+    socket.emit('start_game', { difficulty: 'hard' });
 });
 
 document.getElementById('endTurn')?.addEventListener('click', () => {

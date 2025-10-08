@@ -2,32 +2,33 @@ module.exports = (io, socket, gameState) => {
     console.log('Player connected:', socket.id);
     
     
-    function generateCardDeck() {
-        const animals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐘'];
+    function generateCardDeck(difficulty = 'easy') {
+        
+        const easyAnimals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐘'];
+        
+        
+        const hardAnimals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐘',
+                            '🦁', '🐯', '🐮', '🐷', '🐸', '🐵', '🦄', '🦉', '🦈', '🐙'];
+        
+        const animals = difficulty === 'hard' ? hardAnimals : easyAnimals;
         const cards = [];
         
-        // create 2 cards for each animal (10 pairs = 20 cards)
-        // flipped and matched are intialized as false for all cards
-        // ^^ these comments go with the final implementation, not the development ahrd coded version
-        // HARDCODED FOR TESTING - Easy to find matching pairs!
-        // Position 0 & 10 = 🐶🐶, Position 1 & 11 = 🐱🐱, etc.
-        animals.forEach((animal, index) => {
-            // First card of each pair at position 0-9
-            cards[index] = { value: animal, flipped: false, matched: false };
-            // Second card of each pair at position 10-19  
-            cards[index + 10] = { value: animal, flipped: false, matched: false };
+        // Create 2 cards for each animal
+        // flipped and matched are initialized as false for all cards
+        animals.forEach(animal => {
+            cards.push({ value: animal, flipped: false, matched: false });
+            cards.push({ value: animal, flipped: false, matched: false });
         });
-     // fisher-yates algo "shuffles" the cards, moves backwards through array
+        
+        // fisher-yates algo "shuffles" the cards, moves backwards through array
         // swaps the current element with a random element in the array
         // i is the iterating variable and j is the random index
-        // ^^ these comments go with the final implementation, not the development ahrd coded version
-   
-        console.log('HARDCODED CARDS FOR TESTING:');
-        console.log('Cards 0 & 10 = 🐶🐶 (flip these for match!)');
-        console.log('Cards 1 & 11 = 🐱🐱 (flip these for match!)');
-        console.log('Cards 2 & 12 = 🐭🐭 (flip these for match!)');
-        console.log('Cards 3 & 13 = 🐹🐹 (flip these for match!)');
-        console.log('Cards 4 & 14 = 🐰🐰 (flip these for match!)');
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        
+        console.log(`🎲 ${difficulty.toUpperCase()} mode: ${cards.length} cards shuffled! Good luck!`);
         
         return cards;
     }
@@ -172,6 +173,24 @@ module.exports = (io, socket, gameState) => {
                     scores: gameState.matches
                 });
                 
+                // after each match is found, check if *all matches are found (game over) by checking the state of each card
+                const allMatched = gameState.cards.every(card => card.matched);
+                if (allMatched) {
+                    
+                    const winner = gameState.matches.player1 > gameState.matches.player2 ? 'Player 1' : 
+                                  gameState.matches.player2 > gameState.matches.player1 ? 'Player 2' : 'Tie!';
+                    
+                    console.log(`Game Over! ${winner} wins!`);
+                    gameState.gameStarted = false;
+                    
+                    
+                    io.emit('game_over', {
+                        winner: winner,
+                        scores: gameState.matches,
+                        message: `🎉 Game Over! ${winner} wins! 🎉`
+                    });
+                }
+                
             } else {
                 console.log('NO MATCH:', firstCard.value, 'vs', secondCard.value);
                 
@@ -192,11 +211,12 @@ module.exports = (io, socket, gameState) => {
     });
     
     // listener for the 'start_game' event coming from the client browsers, handles game start
-    socket.on('start_game', () => {
-        console.log('Game start requested');
+    socket.on('start_game', (data) => {
+        const difficulty = data?.difficulty || 'easy';
+        console.log(`Game start requested - ${difficulty} mode`);
         
         // update the gameState storage object, data will persist in gameState until server is killed
-        gameState.cards = generateCardDeck();
+        gameState.cards = generateCardDeck(difficulty);
         gameState.gameStarted = true;
         gameState.currentPlayer = 1; // Start with player 1
         
@@ -204,10 +224,11 @@ module.exports = (io, socket, gameState) => {
         io.emit('game_start', {
             cards: gameState.cards,
             currentPlayer: gameState.currentPlayer,
-            playerId: socket.id
+            playerId: socket.id,
+            difficulty: difficulty
         });
         
-        console.log('Game started with', gameState.cards.length, 'cards');
+        console.log(`Game started with ${gameState.cards.length} cards in ${difficulty} mode`);
     });
     
     // listener for the 'end_turn' event - switches turns and unlocks board

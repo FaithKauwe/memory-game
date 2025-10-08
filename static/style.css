@@ -68,6 +68,12 @@ h1 {
     margin: 0 auto 30px;
 }
 
+/* Adjust grid for hard mode (40 cards) */
+.game-board.hard-mode {
+    grid-template-columns: repeat(8, 1fr);
+    max-width: 800px;
+}
+
 .card {
     aspect-ratio: 1;
     background: #fff;
@@ -97,6 +103,16 @@ h1 {
     background: #4CAF50;
     color: white;
     cursor: default;
+    animation: fadeOut 0.8s ease forwards;
+    animation-delay: 0.6s; /* Let players see the green celebration first, before mathced pair disappears */
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: scale(0.3);
+        pointer-events: none;
+    }
 }
 
 .card.disabled {
@@ -106,6 +122,18 @@ h1 {
 
 .controls {
     text-align: center;
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.difficulty-btn {
+    flex: 1;
+    max-width: 200px;
 }
 
 button {
@@ -129,6 +157,23 @@ button:hover:not(:disabled) {
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Confetti celebration animation */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    z-index: 9999;
+    animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 @media (max-width: 600px) {
