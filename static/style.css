@@ -104,14 +104,15 @@ h1 {
     color: white;
     cursor: default;
     animation: fadeOut 0.8s ease forwards;
-    animation-delay: 0.6s; /* Let players see the green celebration first, before mathced pair disappears */
+    animation-delay: 0.6s; /* Let players see the green celebration first, before mathced pair disappears, 
+    use built in animation and delay functions*/
 }
 
 @keyframes fadeOut {
     to {
-        opacity: 0;
-        transform: scale(0.3);
-        pointer-events: none;
+        opacity: 0; /* Fade to invisible */
+        transform: scale(0.3);  /* Shrink to 30% size */
+        pointer-events: none; /* don't allow mouse click events to register */
     }
 }
 
