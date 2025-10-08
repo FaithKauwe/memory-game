@@ -262,6 +262,11 @@ document.getElementById('startHard')?.addEventListener('click', () => {
     socket.emit('start_game', { difficulty: 'hard' });
 });
 
+document.getElementById('startDemo')?.addEventListener('click', () => {
+    console.log('Start demo mode');
+    socket.emit('start_game', { difficulty: 'demo' });
+});
+
 document.getElementById('endTurn')?.addEventListener('click', () => {
     console.log('End turn button clicked');
     socket.emit('end_turn');

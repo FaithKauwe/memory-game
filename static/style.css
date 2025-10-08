@@ -136,6 +136,15 @@ h1 {
     max-width: 200px;
 }
 
+.demo-btn {
+    background: rgba(255, 215, 0, 0.3) !important;
+    border-color: rgba(255, 215, 0, 0.6) !important;
+}
+
+.demo-btn:hover:not(:disabled) {
+    background: rgba(255, 215, 0, 0.4) !important;
+}
+
 button {
     background: rgba(255,255,255,0.2);
     color: white;

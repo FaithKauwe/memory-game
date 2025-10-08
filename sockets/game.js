@@ -10,6 +10,17 @@ module.exports = (io, socket, gameState) => {
         const hardAnimals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐘',
                             '🦁', '🐯', '🐮', '🐷', '🐸', '🐵', '🦄', '🦉', '🦈', '🐙'];
         
+        // Demo mode: hardcoded pairs 
+        if (difficulty === 'demo') {
+            const cards = [];
+            easyAnimals.forEach((animal, index) => {
+                cards[index] = { value: animal, flipped: false, matched: false };
+                cards[index + 10] = { value: animal, flipped: false, matched: false };
+            });
+            console.log('🎬 DEMO MODE: Cards 0&10, 1&11, 2&12, etc. are matching pairs!');
+            return cards;
+        }
+        
         const animals = difficulty === 'hard' ? hardAnimals : easyAnimals;
         const cards = [];
         
